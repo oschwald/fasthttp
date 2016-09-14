@@ -1595,7 +1595,7 @@ func (h *RequestHeader) parse(buf []byte) (int, error) {
 	}
 
 	var n int
-	if h.ignoreBody() || h.noHTTP11 {
+	if !h.ignoreBody() || h.noHTTP11 {
 		n, err = h.parseHeaders(buf[m:])
 		if err != nil {
 			return 0, err
