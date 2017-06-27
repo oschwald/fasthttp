@@ -1197,9 +1197,14 @@ func (resp *Response) gzipBody(level int) error {
 		return nil
 	}
 
-	// Do not care about memory allocations here, since gzip is slow
-	// and allocates a lot of memory by itself.
 	if resp.bodyStream != nil {
+		// Reset Content-Length to -1, since it is impossible
+		// to determine body size beforehand of streamed compression.
+		// For https://github.com/valyala/fasthttp/issues/176 .
+		resp.Header.SetContentLength(-1)
+
+		// Do not care about memory allocations here, since gzip is slow
+		// and allocates a lot of memory by itself.
 		bs := resp.bodyStream
 		resp.bodyStream = NewStreamReader(func(sw *bufio.Writer) {
 			zw := acquireStacklessGzipWriter(sw, level)
@@ -1246,9 +1251,14 @@ func (resp *Response) deflateBody(level int) error {
 		return nil
 	}
 
-	// Do not care about memory allocations here, since flate is slow
-	// and allocates a lot of memory by itself.
 	if resp.bodyStream != nil {
+		// Reset Content-Length to -1, since it is impossible
+		// to determine body size beforehand of streamed compression.
+		// For https://github.com/valyala/fasthttp/issues/176 .
+		resp.Header.SetContentLength(-1)
+
+		// Do not care about memory allocations here, since flate is slow
+		// and allocates a lot of memory by itself.
 		bs := resp.bodyStream
 		resp.bodyStream = NewStreamReader(func(sw *bufio.Writer) {
 			zw := acquireStacklessDeflateWriter(sw, level)
